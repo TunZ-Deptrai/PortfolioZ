@@ -1,0 +1,1907 @@
+import React, { useState, useEffect, useRef } from 'react';
+
+// Style Loader injection for custom typography, smooth transitions, and premium rendering
+const StyleLoader = () => (
+  <style dangerouslySetInnerHTML={{ __html: `
+    @import url('https://fonts.googleapis.com/css2?family=Montserrat:wght@300;400;500;600;700;800;900&family=Be+Vietnam+Pro:wght@300;400;500;600;700;800&display=swap');
+    
+    html {
+      scroll-behavior: smooth;
+    }
+    
+    html, body {
+      font-family: 'Be Vietnam Pro', sans-serif;
+      background-color: #0C0C0E !important;
+      color: #F2F2F2 !important;
+      overflow-x: hidden;
+    }
+    
+    .font-headings {
+      font-family: 'Montserrat', sans-serif;
+      letter-spacing: -0.04em;
+    }
+
+    ::selection {
+      background-color: #E11D48;
+      color: #FFFFFF;
+    }
+
+    @keyframes horizontalScroll {
+      0% { transform: translateX(0%); }
+      100% { transform: translateX(-50%); }
+    }
+    
+    .animate-marquee-infinite {
+      display: flex;
+      width: max-content;
+      animation: horizontalScroll 30s linear infinite;
+    }
+    
+    .animate-marquee-infinite:hover {
+      animation-play-state: paused;
+    }
+
+    .crimson-glow {
+      box-shadow: 0 0 50px rgba(225, 29, 72, 0.15);
+    }
+    
+    .crimson-border-hover {
+      transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+    }
+    .crimson-border-hover:hover {
+      border-color: #E11D48 !important;
+      box-shadow: 0 0 30px rgba(225, 29, 72, 0.12);
+    }
+
+    ::-webkit-scrollbar {
+      width: 8px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #0C0C0E;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #141416;
+      border: 2px solid #0C0C0E;
+      border-radius: 8px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #E11D48;
+    }
+
+    @keyframes slideUpFade {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    .reveal-editorial {
+      animation: slideUpFade 0.9s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    }
+    
+    button, [role="button"], a {
+      cursor: pointer !important;
+    }
+  `}} />
+);
+
+const TRANSLATIONS = {
+  vi: {
+    navWork: "Dự Án",
+    navAbout: "Giới Thiệu",
+    navContact: "Liên Hệ",
+    navHire: "HỢP TÁC NGAY",
+    heroAvailable: "Sẵn sàng nhận dự án · TP. Hồ Chí Minh 🇻🇳",
+    heroSubheading: "UI/UX Designer chuyển hóa ý tưởng thành trải nghiệm số trực quan và lôi cuốn.",
+    heroViewWork: "Xem sản phẩm",
+    heroDownloadCV: "Tải CV (.PDF)",
+    heroOpenToWork: "Nhận dự án tự do",
+    aboutEyebrow: "Về Tôi",
+    aboutHeading: "CHUYỂN HÓA Ý TƯỞNG THÀNH TRẢI NGHIỆM THÂN THIỆN VỚI NGƯỜI DÙNG.",
+    aboutBio1: "Tôi là Hoang Tuanz, một UI/UX Designer với nền tảng kiến thức về Công nghệ thông tin. Tôi kết hợp sự hiểu biết về kỹ thuật với các nguyên lý thiết kế lấy người dùng làm trung tâm để tạo ra các sản phẩm kỹ thuật số trực quan, thiết thực và hấp dẫn.",
+    aboutBio2: "Trong suốt quá trình thực tập và thực hiện các dự án cá nhân, tôi đã tích lũy được nhiều kinh nghiệm thực tiễn về thiết kế giao diện, vẽ wireframe, tạo mẫu thử (prototype) và thiết kế tập trung vào khả năng sử dụng bằng cách sử dụng Figma. Tôi đam mê phân tích nhu cầu người dùng, đơn giản hóa các luồng công việc phức tạp và thiết kế nên những trải nghiệm vừa đẹp mắt vừa dễ dàng sử dụng.",
+    aboutSkillsTitle: "Công cụ & Kỹ năng",
+    aboutProcessTitle: "Quy trình thiết kế của tôi",
+    aboutExperienceTitle: "Quá trình công tác",
+    aboutStatsYears: "Năm Kinh Nghiệm",
+    aboutStatsProjects: "Dự Án Hoàn Thành",
+    aboutStatsClients: "Khách Hàng Lớn",
+    aboutStatsAwards: "Giải Thưởng Thiết Kế",
+    workEyebrow: "Dự án chọn lọc",
+    workHeading: "Các dự án tôi đặt tâm huyết nhất.",
+    workSubtext: "Sự hòa phối hài hòa giữa các nguyên lý thiết kế, tư duy trải nghiệm khách hàng và giải pháp giao diện đương đại.",
+    workFilterAll: "Tất cả",
+    workFilterProduct: "Thiết kế sản phẩm",
+    workFilterMobile: "Ứng dụng Di động",
+    workFilterWeb: "Giao diện Web",
+    workFilterBranding: "Nhận diện Thương hiệu",
+    workHoverAction: "CHI TIẾT CASE STUDY",
+    caseBack: "Trở lại trang chủ",
+    caseRole: "VAI TRÒ THỰC HIỆN",
+    caseDuration: "THỜI GIAN TRIỂN KHAI",
+    caseYear: "NĂM HOÀN THÀNH",
+    caseOutcome: "KẾT QUẢ CỐT LÕI",
+    caseChallenge: "Thách thức lớn của dự án",
+    caseMission: "Nhiệm vụ của tôi",
+    caseQuoteTitle: "Triết lý trải nghiệm cốt lõi",
+    caseProcessTitle: "Luồng quy trình triển khai chi tiết",
+    caseOutcomesTitle: "Kết quả chuyển đổi thực nghiệm",
+    caseGalleryTitle: "Bộ thư viện màn hình giao diện",
+    caseNext: "DỰ ÁN TIẾP THEO",
+    caseReadNext: "Đọc Case Study Tiếp Theo",
+    contactHeading: "Hãy cùng kiến tạo sản phẩm tuyệt vời.",
+    contactSubtext: "Bạn có ý tưởng lớn cần thực thi hoặc cần tư vấn cải thiện trải nghiệm sản phẩm số? Tôi luôn cởi mở đón nhận các cơ hội hợp tác sáng tạo đầy thử thách.",
+    contactEmailLabel: "HÒM THƯ TRỰC TIẾP",
+    contactLocationLabel: "ĐẠI ĐIỂM TRỰC THUỘC",
+    contactResponseLabel: "THỜI GIAN PHẢN HỒI TB",
+    contactResponseValue: "Trong vòng 24 giờ làm việc",
+    contactSocialsLabel: "MẠNG XÃ HỘI CHUYÊN NGHIỆP",
+    contactFormName: "HỌ TÊN CỦA BẠN *",
+    contactFormEmail: "EMAIL LIÊN HỆ *",
+    contactFormBudget: "NGÂN SÁCH DỰ KIẾN",
+    contactFormType: "LOẠI HÌNH DỰ ÁN",
+    contactFormMessage: "MESSAGE *",
+    contactFormHeaderTitle: "GỬI TIN NHẮN TRỰC TIẾP",
+    contactFormHeaderDesc: "Bạn có ý tưởng thú vị hoặc cơ hội hợp tác? Hãy để lại lời nhắn phía dưới.",
+    contactFormSubmit: "GỬI THÔNG TIN LIÊN HỆ",
+    contactFormSending: "Đang truyền tin...",
+    contactSuccessTitle: "Yêu cầu đã được gửi! 🎉",
+    contactSuccessDesc: "Cảm ơn bạn đã kết nối. Tôi đã tiếp nhận thành công thông tin dự án và sẽ phản hồi qua hòm thư điện tử cá nhân của bạn trong vòng 24 tiếng tới.",
+    contactSuccessBtn: "Gửi thêm tin nhắn mới",
+    errName: "Vui lòng nhập họ và tên của bạn",
+    errEmail: "Định dạng email không hợp lệ",
+    errMessage: "Vui lòng ghi chi tiết thêm (tối thiểu 20 ký tự)",
+    footerReserved: "Hoang Tuanz. Bảo lưu mọi quyền lợi.",
+    footerSubtext: "Được thiết kế và lập trình tỉ mỉ với chất lượng tối ưu nhất.",
+    
+    process1Title: "1. Research",
+    process1Sub: "Thấu hiểu & Khảo sát",
+    process1Desc: "Nghiên cứu thị trường sâu rộng, phỏng vấn người dùng thực tế và thực hiện đo lường hành vi để thấu hiểu rào cản nhận thức lỗi.",
+    
+    process2Title: "2. Define",
+    process2Sub: "Định vị & Xác lập",
+    process2Desc: "Phân tích, tổng hợp số liệu để dựng chân dung đối tượng (Personas), xác lập tuyên bố vấn đề và lập bản đồ hành trình tối ưu.",
+    
+    process3Title: "3. Ideate",
+    process3Sub: "Phác thảo & Giải pháp",
+    process3Desc: "Động não, phác họa sơ bộ các giải pháp đột phá, xây dựng kiến trúc thông tin (IA) và thiết lập các luồng dịch chuyển trực quan.",
+    
+    process4Title: "4. Prototype",
+    process4Sub: "Mô phỏng & Thiết kế",
+    process4Desc: "Xây dựng các giao diện mẫu thử nghiệm trung thực cao (Hi-fi Figma) kết hợp chuyển động tương tác mượt mà bằng Protopie.",
+    
+    process5Title: "5. Test",
+    process5Sub: "Đo lường & Tối ưu",
+    process5Desc: "Thử nghiệm trực tiếp trên tập người dùng mẫu, khảo sát trải nghiệm thực và bàn giao thư viện tokens lập trình đồng nhất.",
+    skillsDesignTitle: "UI Design",
+    skillsResearchTitle: "UX Design",
+    skillsDevTitle: "Development"
+  },
+  en: {
+    navWork: "Projects",
+    navAbout: "About",
+    navContact: "Contact",
+    navHire: "HIRE ME NOW",
+    heroAvailable: "Available for freelance · Ho Chi Minh City 🇻🇳",
+    heroSubheading: "UI/UX Designer transforming ideas into intuitive and engaging digital experiences.",
+    heroViewWork: "View my work",
+    heroDownloadCV: "Download CV (.PDF)",
+    heroOpenToWork: "Open to work",
+    aboutEyebrow: "About me",
+    aboutHeading: "TURNING IDEAS INTO USER-FRIENDLY EXPERIENCES.",
+    aboutBio1: "I'm Hoang Tuanz, a UI/UX Designer with a background in Information Technology. I combine technical understanding with user-centered design principles to create intuitive, functional, and engaging digital products.",
+    aboutBio2: "During my internship and personal projects, I gained hands-on experience in interface design, wireframing, prototyping, and usability-focused design using Figma. I enjoy analyzing user needs, simplifying complex workflows, and designing experiences that are both visually appealing and easy to use.",
+    aboutSkillsTitle: "Tools & skills",
+    aboutProcessTitle: "My design process",
+    aboutExperienceTitle: "Experience timeline",
+    aboutStatsYears: "Years Experience",
+    aboutStatsProjects: "Projects Delivered",
+    aboutStatsClients: "Happy Clients",
+    aboutStatsAwards: "Design Awards",
+    workEyebrow: "Selected work",
+    workHeading: "Projects I'm proud of.",
+    workSubtext: "A mix of product design, mobile apps, and passion projects built with modern guidelines.",
+    workFilterAll: "All",
+    workFilterProduct: "Product Design",
+    workFilterMobile: "Mobile App",
+    workFilterWeb: "Web UI",
+    workFilterBranding: "Branding",
+    workHoverAction: "VIEW CASE STUDY",
+    caseBack: "Back to Home",
+    caseRole: "ROLE PERFORMED",
+    caseDuration: "PROJECT DURATION",
+    caseYear: "COMPLETED YEAR",
+    caseOutcome: "CORE OUTCOME",
+    caseChallenge: "The Big Challenge",
+    caseMission: "My Responsibility",
+    caseQuoteTitle: "Core Experience Philosophy",
+    caseProcessTitle: "Detailed Implementation Process",
+    caseOutcomesTitle: "Experimental Outcomes",
+    caseGalleryTitle: "Interface Showcase",
+    caseNext: "NEXT PROJECT",
+    caseReadNext: "Read Next Case Study",
+    contactHeading: "Let's work together.",
+    contactSubtext: "Have a project in mind? I'm currently available for freelance work and full-time roles. I'd love to hear from you.",
+    contactEmailLabel: "DIRECT MAILBOX",
+    contactLocationLabel: "BASED IN",
+    contactResponseLabel: "RESPONSE TIME",
+    contactResponseValue: "Within 24 working hours",
+    contactSocialsLabel: "PROFESSIONAL NETWORKS",
+    contactFormName: "YOUR FULL NAME *",
+    contactFormEmail: "CONTACT EMAIL *",
+    contactFormBudget: "ESTIMATED BUDGET",
+    contactFormType: "PROJECT TYPE",
+    contactFormMessage: "MESSAGE *",
+    contactFormHeaderTitle: "SEND A DIRECT MESSAGE",
+    contactFormHeaderDesc: "Have an interesting project or a job opportunity? Drop me a line below.",
+    contactFormSubmit: "SEND ENQUIRY",
+    contactFormSending: "Sending details...",
+    contactSuccessTitle: "Enquiry submitted! 🎉",
+    contactSuccessDesc: "Thank you for connecting. I have received your project details and will reply via your personal email within 24 hours.",
+    contactSuccessBtn: "Send a new message",
+    errName: "Please enter your full name",
+    errEmail: "Invalid email format",
+    errMessage: "Please provide more details (minimum 20 characters)",
+    footerReserved: "Hoang Tuanz. All rights reserved.",
+    footerSubtext: "Designed & coded with absolute precision and quality.",
+
+    process1Title: "1. Research",
+    process1Sub: "Empathize & Explore",
+    process1Desc: "Understand user challenges deeply through detailed market analytics, user interviews, and competitive evaluation.",
+    
+    process2Title: "2. Define",
+    process2Sub: "Synthesize & Align",
+    process2Desc: "Sift through accumulated insights to form robust target personas, solid problem definitions, and clear journeys.",
+    
+    process3Title: "3. Ideate",
+    process3Sub: "Brainstorm & Layout",
+    process3Desc: "Structure clean layouts, compile seamless information architectures (IA), and diagram fluid navigation frameworks.",
+    
+    process4Title: "4. Prototype",
+    process4Sub: "Craft & Simulate",
+    process4Desc: "Build structured high-fidelity digital interface modules in Figma, integrating organic tactile micro-flows with Protopie.",
+    
+    process5Title: "5. Test",
+    process5Sub: "Measure & Refine",
+    process5Desc: "Perform structured usability tasks, collect user validation scores, and hand off robust semantic library tokens.",
+    skillsDesignTitle: "UI Design",
+    skillsResearchTitle: "UX Design",
+    skillsDevTitle: "Development"
+  }
+};
+
+const PROJECTS_DATA = {
+  vi: [
+    {
+      slug: "finpay-app",
+      title: "FinPay — Mobile Banking App",
+      description: "Tái cấu trúc trải nghiệm thanh toán cốt lõi cho hơn 500.000 người dùng tích cực.",
+      category: "Mobile App",
+      categoryKey: "Mobile App",
+      tags: ["iOS", "Android", "Figma", "UX Research"],
+      year: "2024",
+      role: "Lead UI/UX Designer",
+      duration: "3 tháng",
+      outcome: "Giảm 28% tỷ lệ hủy bỏ giao dịch trực tuyến",
+      coverImage: "https://images.unsplash.com/photo-1563013544-824ae1d704d3?auto=format&fit=crop&w=1200&q=80",
+      quote: "Sự tinh gọn không đơn thuần là bớt nút bấm, đó là việc giảm tải tối đa rào cản nhận thức của người dùng.",
+      problem: "Ứng dụng FinPay phiên bản cũ ghi nhận tỷ lệ drop-off lên tới 42% ngay tại cổng xác thực giao dịch OTP. Bố cục thiếu sự liên kết thị giác mạnh mẽ khiến người dùng mất định hướng hành động trong các quyết định chuyển khoản quan trọng.",
+      myRole: "Phụ trách nghiên cứu thực trạng trải nghiệm khách hàng, lên kiến trúc phân luồng IA mới, thống nhất hệ thống UI hoàn chỉnh và tiến hành thực nghiệm kiểm chứng bằng phương thức A/B Testing.",
+      outcomes: [
+        { metric: "-28%", label: "Tỷ lệ hủy giao dịch" },
+        { metric: "+45%", label: "Chỉ số hài lòng CSAT" },
+        { metric: "4.8★", label: "Đánh giá App Store" }
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1616469829581-73993eb86b02?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      slug: "saas-dashboard",
+      title: "Logify — SaaS Logistics System",
+      description: "Bảng điều khiển quản lý chuỗi cung ứng thông minh hiển thị dữ liệu mật độ cao.",
+      category: "Product Design",
+      categoryKey: "Product Design",
+      tags: ["SaaS", "Dashboard", "Design System", "B2B"],
+      year: "2023",
+      role: "UI/UX Designer",
+      duration: "4 tháng",
+      outcome: "Tăng tốc độ xử lý đơn vận của điều phối viên thêm 40%",
+      coverImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
+      quote: "Một dashboard xuất sắc giúp các con số phức tạp trở nên rành mạch, tự kể nên câu chuyện vận hành chân thực.",
+      problem: "Logify là hệ thống quản lý logistics quy mô lớn. Điều phối viên luôn đối diện với hội chứng 'quá tải thông tin' do phiên bản cũ trưng bày tất cả trường dữ liệu đồng thời, làm tăng xác suất ra quyết định sai lệch.",
+      myRole: "Thiết kế toàn bộ khu hiển thị (Grid Layout), tối ưu hóa kiến trúc thông tin theo dạng phân cấp bậc và kiến tạo bộ Design System đồng nhất phục vụ đóng gói thư viện giao diện.",
+      outcomes: [
+        { metric: "40%", label: "Tốc độ điều phối đơn" },
+        { metric: "-15%", label: "Lỗi thao tác vận hành" },
+        { metric: "100%", label: "Tính đồng nhất của Dev" }
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      slug: "ecom-redesign",
+      title: "Moda — Premium E-commerce",
+      description: "Cải tổ toàn diện trải nghiệm mua sắm kỹ thuật số cho hãng thời trang nội địa lớn.",
+      category: "Web UI",
+      categoryKey: "Web UI",
+      tags: ["E-commerce", "UX Audit", "Figma", "Webflow"],
+      year: "2023",
+      role: "UI/UX Designer",
+      duration: "6 tuần",
+      outcome: "Tăng 35% tỷ lệ chuyển đổi thao tác 'Thêm vào giỏ'",
+      coverImage: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80",
+      quote: "Thiết kế thời trang là nghệ thuật của thị giác, thiết kế trải nghiệm web thời trang là khoa học của sự tiện lợi.",
+      problem: "Khách hàng của Moda có xu hướng rời bỏ trang chi tiết sản phẩm cực kỳ cao do quy trình chọn kích thước, xem chất liệu vải thực tế thiết lập rườm rà và tốn nhiều bước tương tác phụ họa.",
+      myRole: "Phân tích số liệu và Audit luồng trải nghiệm cũ, xây dựng giải pháp thanh toán một trang tối giản (One-Page Checkout) và tái cơ cấu trang chi tiết sản phẩm theo chuẩn tối giản cao cấp.",
+      outcomes: [
+        { metric: "+35%", label: "Tỷ lệ giỏ hàng thành công" },
+        { metric: "-50%", label: "Thời gian hoàn tất thanh toán" },
+        { metric: "15%", label: "Tăng giá trị giỏ hàng TB" }
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      slug: "health-app",
+      title: "Vitals — Mental Wellness Tracker",
+      description: "Ứng dụng theo dõi chỉ số sức khỏe tinh thần và thể trạng hàng ngày.",
+      category: "Mobile App",
+      categoryKey: "Mobile App",
+      tags: ["iOS", "Accessibility", "Protopie", "User Testing"],
+      year: "2024",
+      role: "Lead Designer",
+      duration: "2 tháng",
+      outcome: "Đạt mốc 4.8★ trên hệ thống TestFlight Beta quốc tế",
+      coverImage: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1200&q=80",
+      quote: "Sức khỏe tinh thần không nên được giám sát bằng sự căng thẳng của những cột biểu đồ dồn dập.",
+      problem: "Đa số ứng dụng sức khỏe hiện hành đều sử dụng dải màu đỏ cảnh báo hoặc biểu đồ dồn dập gây áp lực tâm lý cho người dùng. Vitals hướng tới giải pháp tinh lọc, dịu mắt và nhẹ nhàng nâng đỡ tinh thần người dùng.",
+      myRole: "Xây dựng định hướng Calm UI, phối kết các bảng màu đạt chứng chỉ Accessibility AAA, tích hợp các micro-interaction và âm thanh phản hồi êm dịu.",
+      outcomes: [
+        { metric: "4.8★", label: "Đánh giá TestFlight" },
+        { metric: "84%", label: "Tỷ lệ giữ chân người dùng" },
+        { metric: "0", label: "Lỗi rào cản tiếp cận thị giác" }
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      slug: "design-system",
+      title: "Nucleus — Unified Design System",
+      description: "Thư viện thành phần đồng nhất cho nhóm sản phẩm số đa nền tảng.",
+      category: "Product Design",
+      categoryKey: "Product Design",
+      tags: ["Design System", "Figma", "Tokens", "Documentation"],
+      year: "2023",
+      role: "Solo UX Architect",
+      duration: "Dài hạn",
+      outcome: "Tối ưu hóa hơn 35% thời gian bàn giao giao diện phát triển",
+      coverImage: "https://images.unsplash.com/photo-1581291518655-9523c932dedf?auto=format&fit=crop&w=1200&q=80",
+      quote: "Một hệ thống thiết kế hoàn mỹ là gốc rễ kiến tạo nên sự mạch lạc của trải nghiệm sản phẩm số.",
+      problem: "Sự phân mảnh trong cách xây dựng UI giữa ba phòng ban phát triển (Web, Mobile, Dashboard) khiến các sản phẩm của doanh nghiệp bị lệch tông nhận diện, tạo chi phí cơ hội lớn khi tái lập trình mã nguồn liên tục.",
+      myRole: "Phỏng vấn khảo sát quy trình vận hành của đội ngũ thiết kế & kỹ sư lập trình, phân tách cấu trúc Token (Figma Variables) và hoàn thành tài liệu hướng dẫn (Guideline) toàn diện.",
+      outcomes: [
+        { metric: "-35%", label: "Thời gian viết code UI" },
+        { metric: "4", label: "Hệ thống sản phẩm áp dụng" },
+        { metric: "100%", label: "Mức độ tuân thủ thương hiệu" }
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      slug: "brand-identity",
+      title: "Môi Trường — Visual Brand Identity",
+      description: "Nhận diện thương hiệu đương đại của tổ chức phi chính phủ bảo vệ tài nguyên xanh.",
+      category: "Branding",
+      categoryKey: "Branding",
+      tags: ["Brand", "Logo", "Illustration", "Guidelines"],
+      year: "2022",
+      role: "Lead Visual Designer",
+      duration: "3 tuần",
+      outcome: "Triển khai đồng loạt trên tất cả cổng truyền thông lớn",
+      coverImage: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=80",
+      quote: "Nghệ thuật bảo vệ thiên nhiên không đến từ sự răn đe, nó đến từ tình yêu sâu đậm được hữu hình hóa qua thẩm mỹ.",
+      problem: "Tổ chức 'Môi Trường' sở hữu ngôn ngữ hình ảnh khá lỗi thời, mang nặng tính hành chính và thiếu sự tương tác xúc cảm với tệp độc giả thế hệ trẻ (Gen Z) - lực lượng nòng cốt hành động vì khí hậu.",
+      myRole: "Nghiên cứu bản sắc tổ chức, thiết kế lại logo tích hợp hình tượng vô cực và chồi non cách điệu nghệ thuật, biên soạn bộ cẩm nang quy định quy chuẩn ấn phẩm truyền thông xã hội.",
+      outcomes: [
+        { metric: "100%", label: "Tỷ lệ hài lòng nội bộ" },
+        { metric: "+200%", label: "Tương tác truyền thông mạng" },
+        { metric: "Gen Z", label: "Tệp tiếp cận đột phá" }
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80"
+      ]
+    }
+  ],
+  en: [
+    {
+      slug: "finpay-app",
+      title: "FinPay — Mobile Banking App",
+      description: "Redesigning the core payment experience for 500K+ active users.",
+      category: "Mobile App",
+      categoryKey: "Mobile App",
+      tags: ["iOS", "Android", "Figma", "UX Research"],
+      year: "2024",
+      role: "Lead UI/UX Designer",
+      duration: "3 months",
+      outcome: "28% drop in transaction drop-off rate",
+      coverImage: "https://images.unsplash.com/photo-1563013544-824ae1d704d3?auto=format&fit=crop&w=1200&q=80",
+      quote: "Simplicity is not just removing buttons, it's about minimizing the user's cognitive load.",
+      problem: "The legacy FinPay app experienced a 42% drop-off rate at the OTP transaction verification stage. The lack of visual hierarchy and cues left users confused during critical transfer decisions.",
+      myRole: "Led research into current friction points, designed the new IA structure, standard UI library, and performed validating A/B Testing on production concepts.",
+      outcomes: [
+        { metric: "-28%", label: "Transaction Drop-off" },
+        { metric: "+45%", label: "CSAT Score" },
+        { metric: "4.8★", label: "App Store Rating" }
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1616469829581-73993eb86b02?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1586717791821-3f44a563fa4c?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      slug: "saas-dashboard",
+      title: "Logify — SaaS Logistics System",
+      description: "Building a data-heavy logistics dashboard that doesn't overwhelm operations.",
+      category: "Product Design",
+      categoryKey: "Product Design",
+      tags: ["SaaS", "Dashboard", "Design System", "B2B"],
+      year: "2023",
+      role: "UI/UX Designer",
+      duration: "4 months",
+      outcome: "40% improvement in coordinator routing speed",
+      coverImage: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?auto=format&fit=crop&w=1200&q=80",
+      quote: "A great dashboard translates raw numbers into a structured operating narrative.",
+      problem: "Logify processes massive daily freight data. Coordinators previously faced severe fatigue due to simultaneously displayed unprioritized data blocks, leading to delayed freight assignments.",
+      myRole: "Designed the flexible dashboard grid layout, restructured the data hierarchy, and built the scalable component tokens for developers.",
+      outcomes: [
+        { metric: "40%", label: "Dispatch Velocity" },
+        { metric: "-15%", label: "Operator Fatigue Errors" },
+        { metric: "100%", label: "Dev Compliance" }
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1460925895917-afdab827c52f?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1504868584819-f8e8b4b6d7e3?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      slug: "ecom-redesign",
+      title: "Moda — Premium E-commerce",
+      description: "Full UX overhaul for an established Vietnamese premium fashion platform.",
+      category: "Web UI",
+      categoryKey: "Web UI",
+      tags: ["E-commerce", "UX Audit", "Figma", "Webflow"],
+      year: "2023",
+      role: "UI/UX Designer",
+      duration: "6 weeks",
+      outcome: "+35% add-to-cart conversion rate",
+      coverImage: "https://images.unsplash.com/photo-1483985988355-763728e1935b?auto=format&fit=crop&w=1200&q=80",
+      quote: "Fashion design is visual poetry; e-commerce design is the science of removing resistance.",
+      problem: "Customers abandoned shopping journeys on detail pages due to complex size selectors and poor layout of fabric composition metadata.",
+      myRole: "Conducted usability audits on drop-off flows, created a simplified One-Page Checkout system, and refined PDP visual layout.",
+      outcomes: [
+        { metric: "+35%", label: "Cart Conversion" },
+        { metric: "-50%", label: "Checkout Duration" },
+        { metric: "15%", label: "Average Order Value Increase" }
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1441986300917-64674bd600d8?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1523381210434-271e8be1f52b?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      slug: "health-app",
+      title: "Vitals — Mental Wellness Tracker",
+      description: "A calming, highly accessible mobile tracker for everyday emotional wellness.",
+      category: "Mobile App",
+      categoryKey: "Mobile App",
+      tags: ["iOS", "Accessibility", "Protopie", "User Testing"],
+      year: "2024",
+      role: "Lead Designer",
+      duration: "2 months",
+      outcome: "4.8★ rating in TestFlight international beta",
+      coverImage: "https://images.unsplash.com/photo-1505751172876-fa1923c5c528?auto=format&fit=crop&w=1200&q=80",
+      quote: "Mental health monitoring shouldn't provoke anxiety with high-alert, stressful charts.",
+      problem: "Existing trackers utilize aggressive warning colors or dense metrics that stress users out. Vitals is built around gentle gradients, serene visual cues, and extreme ease-of-use.",
+      myRole: "Formulated Calm UI guidelines, matched colors to meet strict AAA accessibility standards, and engineered peaceful haptic/audio micro-interactions.",
+      outcomes: [
+        { metric: "4.8★", label: "TestFlight Score" },
+        { metric: "84%", label: "Retention Rate" },
+        { metric: "0", label: "Accessibility Blocks" }
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1511556532299-8f662fc26c06?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1526256262350-7da7584cf5eb?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      slug: "design-system",
+      title: "Nucleus — Unified Design System",
+      description: "A scalable, semantic component library built for developer handoff efficiency.",
+      category: "Product Design",
+      categoryKey: "Product Design",
+      tags: ["Design System", "Figma", "Tokens", "Documentation"],
+      year: "2023",
+      role: "Solo UX Architect",
+      duration: "Ongoing",
+      outcome: "Optimized design handoff and dev cycle by 35%",
+      coverImage: "https://images.unsplash.com/photo-1581291518655-9523c932dedf?auto=format&fit=crop&w=1200&q=80",
+      quote: "A design system isn't just about components — it's the semantic bridge between creative thinking and running code.",
+      problem: "UI inconsistencies across the web, mobile, and SaaS tools created brand fragmentation and redundant engineering work.",
+      myRole: "Audited production codebases, aligned creative leads, structured Figma semantic variables, and authored exhaustive implementation guidelines.",
+      outcomes: [
+        { metric: "-35%", label: "Frontend Handoff Time" },
+        { metric: "4", label: "Adopted Platforms" },
+        { metric: "100%", label: "Brand Integrity Match" }
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1531403009284-440f080d1e12?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1542744094-3a31f103e35f?auto=format&fit=crop&w=800&q=80"
+      ]
+    },
+    {
+      slug: "brand-identity",
+      title: "Môi Trường — Visual Brand Identity",
+      description: "A contemporary visual system for a premium ecological non-governmental organization.",
+      category: "Branding",
+      categoryKey: "Branding",
+      tags: ["Brand", "Logo", "Illustration", "Guidelines"],
+      year: "2022",
+      role: "Lead Visual Designer",
+      duration: "3 weeks",
+      outcome: "Successfully adopted across all outreach campaigns",
+      coverImage: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?auto=format&fit=crop&w=1200&q=80",
+      quote: "Environmental protection design shouldn't scare people; it should inspire love and stewardship.",
+      problem: "The legacy identity was institutional, dated, and lacked appeal with younger demographic targets essential to active mobilization.",
+      myRole: "Designed custom geometric emblem blending the infinity loop and sprouting leaves, then engineered templates for rapid social media production.",
+      outcomes: [
+        { metric: "100%", label: "Internal Unity Match" },
+        { metric: "+200%", label: "Social Platform Engagement" },
+        { metric: "Gen Z", label: "Breakthrough Audience" }
+      ],
+      gallery: [
+        "https://images.unsplash.com/photo-1502082553048-f009c37129b9?auto=format&fit=crop&w=800&q=80",
+        "https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?auto=format&fit=crop&w=800&q=80"
+      ]
+    }
+  ]
+};
+
+const SKILLS_DATA = {
+  vi: {
+    design: ["Figma", "Wireframing", "Prototyping", "Design Systems", "Responsive Design", "Component Design"],
+    research: ["Nghiên cứu người dùng", "User Flow", "Kiến trúc thông tin", "Kiểm thử trải nghiệm", "Bản đồ hành trình"],
+    dev: ["HTML/CSS", "Basic React", "Hợp tác Front-end", "Responsive Web Design"]
+  },
+  en: {
+    design: ["Figma", "Wireframing", "Prototyping", "Design Systems", "Responsive Design", "Component Design"],
+    research: ["User Research", "User Flow", "Information Architecture", "Usability Testing", "Journey Mapping"],
+    dev: ["HTML/CSS", "Basic React", "Front-end Collaboration", "Responsive Web Design"]
+  }
+};
+
+const TIMELINE_DATA = {
+  vi: [
+    {
+      period: "2026 – Hiện tại",
+      role: "Thực tập sinh Thiết kế UI/UX",
+      company: "FPT IS",
+      description: "Đóng góp vào việc thiết kế lại các nền tảng Internet Banking và Mobile Banking thông qua việc vẽ wireframe, tạo mẫu thử (prototype) và thiết kế giao diện. Hợp tác với Business Analysts để đưa ra các giải pháp hướng tới người dùng, đồng thời tích lũy kinh nghiệm thiết kế sản phẩm doanh nghiệp và làm việc nhóm liên chức năng."
+    },
+    {
+      period: "2025",
+      role: "Thực tập sinh Thiết kế UI/UX",
+      company: "Erateq",
+      description: "Xây dựng các case study UI/UX, thực hành nghiên cứu người dùng và thiết kế giao diện di động & web bằng Figma."
+    },
+    {
+      period: "2022 – 2025",
+      role: "Cử nhân Công nghệ thông tin",
+      company: "",
+      description: "Xây dựng nền tảng vững chắc về phát triển phần mềm, phân tích hệ thống và giải quyết vấn đề, đồng thời phát triển các kỹ năng thiết kế UI/UX thông qua các dự án học tập, tự học và kinh nghiệm thực tế."
+    }
+  ],
+  en: [
+    {
+      period: "2026 – Present",
+      role: "UI/UX Design Intern",
+      company: "FPT IS",
+      description: "Contributing to the redesign of Internet Banking and Mobile Banking platforms through wireframing, prototyping, and interface design. Collaborating with Business Analysts to deliver user-centered solutions while gaining experience in enterprise product design and cross-functional teamwork."
+    },
+    {
+      period: "2025",
+      role: "UI/UX Design Intern",
+      company: "Erateq",
+      description: "Creating UI/UX case studies, practicing user research, and designing mobile & web interfaces using Figma."
+    },
+    {
+      period: "2022 – 2025",
+      role: "B.S. Information Technology",
+      company: "",
+      description: "Built a strong foundation in software development, system analysis, and problem-solving while developing skills in UI/UX design through academic projects, self-learning, and practical experience."
+    }
+  ]
+};
+
+const EditorialGridBackground = () => {
+  const canvasRef = useRef(null);
+
+  useEffect(() => {
+    const canvas = canvasRef.current;
+    if (!canvas) return;
+    const ctx = canvas.getContext('2d');
+    let animationFrameId;
+
+    let width = (canvas.width = window.innerWidth);
+    let height = (canvas.height = window.innerHeight);
+
+    let mouseX = width / 2;
+    let mouseY = height / 2;
+
+    const handleMouseMove = (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    };
+
+    const handleResize = () => {
+      if (!canvas) return;
+      width = canvas.width = window.innerWidth;
+      height = canvas.height = window.innerHeight;
+    };
+
+    window.addEventListener('mousemove', handleMouseMove);
+    window.addEventListener('resize', handleResize);
+
+    const gridSpacing = 80;
+    
+    const drawGrid = () => {
+      ctx.clearRect(0, 0, width, height);
+
+      // Delicate dark background gradient spotlight mapping
+      const gradient = ctx.createRadialGradient(mouseX, mouseY, 10, mouseX, mouseY, 400);
+      gradient.addColorStop(0, 'rgba(225, 29, 72, 0.08)');
+      gradient.addColorStop(1, 'rgba(12, 12, 14, 0)');
+      ctx.fillStyle = gradient;
+      ctx.fillRect(0, 0, width, height);
+
+      // Base matrix mesh wireframe layout lines
+      ctx.strokeStyle = 'rgba(255, 255, 255, 0.012)';
+      ctx.lineWidth = 1;
+
+      for (let x = 0; x < width; x += gridSpacing) {
+        ctx.beginPath();
+        ctx.moveTo(x, 0);
+        ctx.lineTo(x, height);
+        ctx.stroke();
+      }
+
+      for (let y = 0; y < height; y += gridSpacing) {
+        ctx.beginPath();
+        ctx.moveTo(0, y);
+        ctx.lineTo(width, y);
+        ctx.stroke();
+      }
+
+      // Drawing delicate cosmic nodes with magnetic shift
+      for (let x = gridSpacing; x < width; x += gridSpacing) {
+        for (let y = gridSpacing; y < height; y += gridSpacing) {
+          const dx = mouseX - x;
+          const dy = mouseY - y;
+          const dist = Math.sqrt(dx * dx + dy * dy);
+
+          let px = x;
+          let py = y;
+
+          if (dist < 250) {
+            const force = (250 - dist) / 250;
+            px += (dx / dist) * force * 5;
+            py += (dy / dist) * force * 5;
+            ctx.fillStyle = 'rgba(225, 29, 72, 0.4)';
+          } else {
+            ctx.fillStyle = 'rgba(255, 255, 255, 0.06)';
+          }
+
+          ctx.beginPath();
+          ctx.arc(px, py, 1.2, 0, Math.PI * 2);
+          ctx.fill();
+        }
+      }
+    };
+
+    const tick = () => {
+      drawGrid();
+      animationFrameId = requestAnimationFrame(tick);
+    };
+
+    tick();
+
+    return () => {
+      cancelAnimationFrame(animationFrameId);
+      window.removeEventListener('mousemove', handleMouseMove);
+      window.removeEventListener('resize', handleResize);
+    };
+  }, []);
+
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 bg-[#0C0C0E]" />;
+};
+
+const StarDecorationSVG = ({ className = "w-4 h-4", color = "#E11D48", style }) => (
+  <svg style={style} className={`${className} animate-pulse`} viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path 
+      d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z" 
+      fill={color}
+    />
+  </svg>
+);
+
+// Mathematically Clean Hollow 'Z' vector split into two open paths to completely bypass browser GPU triangulation rendering bugs
+const OutlineZ = () => (
+  <svg 
+    viewBox="-2 -2 104 104" 
+    className="h-[0.71em] w-auto inline-block align-baseline select-none"
+    style={{ 
+      verticalAlign: '0.01em', // Adjusted to align perfectly with Montserrat baseline
+      marginLeft: '-0.04em' // Tighter margin using relative em units to align perfectly beside letter N
+    }}
+  >
+    <g fill="none" stroke="#E11D48" strokeWidth="5" strokeLinejoin="miter" style={{ strokeWidth: '5px' }}>
+      {/* Path 1: Top, left, and bottom outline */}
+      <path d="M 100 0 L 0 0 L 0 22.5 L 65 22.5 L 0 77.5 L 0 100 L 100 100" />
+      {/* Path 2: Right side and diagonal spine outline */}
+      <path d="M 100 0 L 100 22.5 L 35 77.5 L 100 77.5 L 100 100" />
+    </g>
+  </svg>
+);
+
+const NotificationToast = ({ message, onClose }) => {
+  useEffect(() => {
+    const timer = setTimeout(onClose, 4000);
+    return () => clearTimeout(timer);
+  }, [onClose]);
+
+  return (
+    <div className="fixed bottom-6 right-6 z-50 bg-[#141416] border border-[#E11D48]/30 px-5 py-4 rounded-lg flex items-center gap-3 shadow-xl max-w-sm animate-bounce">
+      <StarDecorationSVG className="w-5 h-5 text-[#E11D48]" />
+      <div>
+        <p className="text-xs text-white leading-relaxed font-medium">{message}</p>
+      </div>
+      <button onClick={onClose} className="text-zinc-500 hover:text-white transition-colors ml-2 focus:outline-none">
+        <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      </button>
+    </div>
+  );
+};
+
+const Navbar = ({ lang, setLang, activeRoute, onNavigate }) => {
+  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [scrolled, setScrolled] = useState(false);
+  const t = TRANSLATIONS[lang];
+
+  useEffect(() => {
+    const handleScroll = () => {
+      if (window.scrollY > 60) {
+        setScrolled(true);
+      } else {
+        setScrolled(false);
+      }
+    };
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, []);
+
+  const handleLinkClick = (route, sectionId) => {
+    setMobileMenuOpen(false);
+    onNavigate(route, sectionId);
+  };
+
+  return (
+    <nav className={`fixed top-0 left-0 right-0 z-50 transition-all duration-500 ${
+      scrolled 
+        ? "bg-[#0C0C0E]/90 backdrop-blur-md border-b border-white/[0.06] py-3.5" 
+        : "bg-transparent py-5"
+    }`}>
+      <div className="max-w-7xl mx-auto px-6 sm:px-12 flex items-center justify-between">
+        {/* Brand logo image from Logo.png */}
+        <button 
+          onClick={() => handleLinkClick("home", "hero")} 
+          className="group flex items-center gap-3 focus:outline-none"
+        >
+          <div className="relative w-9 h-9 flex items-center justify-center bg-white/[0.02] border border-white/[0.08] rounded-lg group-hover:border-[#E11D48]/50 transition-all duration-300 p-1.5">
+            <img 
+              src="Logo.png" 
+              alt="Hoang Tuanz Logo" 
+              className="w-full h-full object-contain filter drop-shadow-[0_0_8px_rgba(225,29,72,0.4)]"
+            />
+          </div>
+          <span className="hidden sm:inline-block text-[9px] font-mono tracking-widest text-zinc-400 uppercase bg-white/[0.03] border border-white/[0.06] px-2 py-0.5 rounded-lg ml-1">
+            UI/UX Studio
+          </span>
+        </button>
+
+        {/* Desktop links - Smooth scroll triggers */}
+        <div className="hidden md:flex items-center gap-8">
+          <button
+            onClick={() => handleLinkClick("home", "work")}
+            className="relative font-semibold text-xs tracking-wider uppercase py-2 transition-colors duration-300 text-zinc-400 hover:text-white"
+          >
+            {t.navWork}
+          </button>
+          
+          <button
+            onClick={() => handleLinkClick("home", "about")}
+            className="relative font-semibold text-xs tracking-wider uppercase py-2 transition-colors duration-300 text-zinc-400 hover:text-white"
+          >
+            {t.navAbout}
+          </button>
+
+          <button
+            onClick={() => handleLinkClick("home", "contact")}
+            className="relative font-semibold text-xs tracking-wider uppercase py-2 transition-colors duration-300 text-zinc-400 hover:text-white"
+          >
+            {t.navContact}
+          </button>
+        </div>
+
+        {/* Global actions row */}
+        <div className="hidden md:flex items-center gap-6">
+          {/* Custom Lang Switcher */}
+          <div className="flex items-center bg-white/[0.03] border border-white/[0.08] rounded-lg p-1 font-mono text-[11px] font-semibold">
+            <button 
+              onClick={() => setLang('vi')}
+              className={`px-3 py-1.5 rounded-md transition-all ${lang === 'vi' ? 'bg-[#E11D48] text-white' : 'text-zinc-400 hover:text-white'}`}
+            >
+              VI
+            </button>
+            <button 
+              onClick={() => setLang('en')}
+              className={`px-3 py-1.5 rounded-md transition-all ${lang === 'en' ? 'bg-[#E11D48] text-white' : 'text-zinc-400 hover:text-white'}`}
+            >
+              EN
+            </button>
+          </div>
+
+          <button 
+            onClick={() => handleLinkClick("home", "contact")}
+            className="font-bold text-xs tracking-widest uppercase bg-[#E11D48] text-white px-5 py-3.5 rounded-lg hover:bg-white hover:text-black transition-all duration-300 hover:scale-[1.03] active:scale-[0.98] outline-none focus:ring-2 focus:ring-[#E11D48]"
+          >
+            {t.navHire}
+          </button>
+        </div>
+
+        {/* Mobile menu trigger */}
+        <div className="flex items-center gap-3 md:hidden">
+          <div className="flex items-center bg-white/[0.03] border border-white/[0.08] rounded-lg p-0.5 font-mono text-[9px] font-semibold">
+            <button 
+              onClick={() => setLang('vi')}
+              className={`px-2 py-1 rounded-md transition-all ${lang === 'vi' ? 'bg-[#E11D48] text-white' : 'text-zinc-400'}`}
+            >
+              VI
+            </button>
+            <button 
+              onClick={() => setLang('en')}
+              className={`px-2 py-1 rounded-md transition-all ${lang === 'en' ? 'bg-[#E11D48] text-white' : 'text-zinc-400'}`}
+            >
+              EN
+            </button>
+          </div>
+
+          <button 
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 text-zinc-300 hover:text-white focus:outline-none focus:ring-1 focus:ring-[#E11D48] rounded-lg"
+            aria-label="Toggle menu"
+          >
+            {mobileMenuOpen ? (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M6 18L18 6M6 6l12 12" />
+              </svg>
+            ) : (
+              <svg className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 6h16M4 12h16M4 18h16" />
+              </svg>
+            )}
+          </button>
+        </div>
+      </div>
+
+      {/* Mobile Drawer */}
+      {mobileMenuOpen && (
+        <div className="fixed inset-0 top-[60px] bg-[#0C0C0E]/98 backdrop-blur-xl z-40 md:hidden flex flex-col p-10 transition-all duration-300 border-t border-white/[0.05]">
+          <div className="flex flex-col gap-6 my-auto">
+            <button
+              onClick={() => handleLinkClick("home", "work")}
+              className="text-left font-extrabold text-3xl tracking-tight py-2 border-b border-white/[0.05] flex items-center justify-between text-white"
+            >
+              <span>{t.navWork}</span>
+              <StarDecorationSVG className="w-5 h-5 opacity-40" />
+            </button>
+
+            <button
+              onClick={() => handleLinkClick("home", "about")}
+              className="text-left font-extrabold text-3xl tracking-tight py-2 border-b border-white/[0.05] flex items-center justify-between text-white"
+            >
+              <span>{t.navAbout}</span>
+              <StarDecorationSVG className="w-5 h-5 opacity-40" />
+            </button>
+
+            <button
+              onClick={() => handleLinkClick("home", "contact")}
+              className="text-left font-extrabold text-3xl tracking-tight py-2 border-b border-white/[0.05] flex items-center justify-between text-white"
+            >
+              <span>{t.navContact}</span>
+              <StarDecorationSVG className="w-5 h-5 opacity-40" />
+            </button>
+          </div>
+
+          <div className="mt-auto space-y-4">
+            <button 
+              onClick={() => handleLinkClick("home", "contact")}
+              className="w-full text-center font-bold text-sm uppercase bg-[#E11D48] text-white py-4 rounded-lg hover:bg-white hover:text-black transition-all duration-300"
+            >
+              {t.navHire}
+            </button>
+            <p className="text-center text-[10px] text-zinc-500 font-mono">Hoang Tuanz · Vietnam 🇻🇳</p>
+          </div>
+        </div>
+      )}
+    </nav>
+  );
+};
+
+const Hero = ({ lang, onShowToast }) => {
+  const t = TRANSLATIONS[lang];
+
+  return (
+    <section id="hero" className="relative min-h-screen flex flex-col justify-center items-center px-6 sm:px-12 pt-28 pb-20 overflow-hidden z-10 text-white">
+      {/* Background decorations */}
+      <div className="absolute right-[5%] top-[15%] w-80 h-80 pointer-events-none md:block hidden opacity-25">
+        <svg viewBox="0 0 100 100" className="w-full h-full text-rose-500 stroke-current fill-none">
+          <circle cx="20" cy="20" r="1" fill="#E11D48" />
+          <circle cx="80" cy="30" r="1.5" fill="#E11D48" />
+          <circle cx="50" cy="70" r="1.2" fill="#E11D48" />
+          <circle cx="30" cy="85" r="1" fill="#E11D48" />
+          <line x1="20" y1="20" x2="80" y2="30" strokeWidth="0.3" strokeDasharray="2 2" />
+          <line x1="80" y1="30" x2="50" y2="70" strokeWidth="0.3" strokeDasharray="2 2" />
+          <line x1="50" y1="70" x2="30" y2="85" strokeWidth="0.3" strokeDasharray="2 2" />
+          <path d="M 50 10 L 90 50 L 50 90 L 10 50 Z" strokeWidth="0.2" />
+        </svg>
+        <div className="absolute inset-0 bg-[#E11D48]/5 filter blur-2xl rounded-full" />
+      </div>
+
+      <div className="max-w-6xl mx-auto text-center flex flex-col items-center">
+        {/* Availability tag */}
+        <div className="flex items-center gap-3 bg-white/[0.03] border border-white/[0.08] px-4 py-2.5 rounded-lg mb-8">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E11D48] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E11D48]"></span>
+          </span>
+          <p className="text-[10px] font-mono text-zinc-300 uppercase tracking-widest font-semibold">
+            {t.heroAvailable}
+          </p>
+        </div>
+
+        <div className="relative mb-6">
+          <StarDecorationSVG className="w-10 h-10 text-[#E11D48] animate-spin" style={{ animationDuration: '15s' }} />
+          <div className="absolute inset-0 bg-[#E11D48]/30 blur-lg rounded-full" />
+        </div>
+
+        {/* Brand name matching design in image_c4ae28.png with the new thinner, closer Z */}
+        <h1 className="font-headings font-black text-5xl sm:text-7xl md:text-[6.5rem] lg:text-[7.5rem] tracking-tight leading-none uppercase relative select-none mb-8">
+          <span className="text-white">HOANG </span>
+          <span className="text-[#E11D48]">TUAN</span>
+          <OutlineZ />
+        </h1>
+
+        <p className="text-base sm:text-lg md:text-xl text-zinc-200 max-w-2xl mb-12 leading-relaxed font-light">
+          {t.heroSubheading}
+        </p>
+
+        {/* Call to actions */}
+        <div className="flex flex-col sm:flex-row gap-4 justify-center items-center w-full max-w-sm mb-20">
+          <button 
+            onClick={() => {
+              const element = document.getElementById("work");
+              if (element) element.scrollIntoView({ behavior: "smooth" });
+            }}
+            className="w-full sm:w-auto font-bold text-xs tracking-widest uppercase bg-[#E11D48] text-white px-8 py-4 rounded-lg hover:bg-white hover:text-black transition-all duration-300 hover:scale-[1.03] active:scale-[0.97] shadow-lg shadow-[#E11D48]/15"
+          >
+            {t.heroViewWork}
+          </button>
+          
+          <button 
+            onClick={() => {
+              const infoMsg = lang === 'vi' 
+                ? "Bản CV PDF đang được tối ưu hóa thiết kế mới. Vui lòng nhắn tin trực tiếp ở mục Liên hệ bên dưới để nhận CV cập nhật mới nhất!"
+                : "The PDF CV is currently undergoing visual updates. Please send an inquiry in the Contact form below to get the latest version!";
+              onShowToast(infoMsg);
+            }}
+            className="w-full sm:w-auto font-bold text-xs tracking-widest uppercase bg-transparent border border-white/10 text-zinc-300 px-8 py-4 rounded-lg hover:bg-white/5 hover:text-white hover:border-white/20 transition-all duration-300"
+          >
+            {t.heroDownloadCV}
+          </button>
+        </div>
+      </div>
+
+      {/* Marquee scroll banner */}
+      <div className="absolute bottom-0 left-0 right-0 py-6 bg-white/[0.01] border-y border-white/[0.05] overflow-hidden backdrop-blur-[2px]">
+        <div className="animate-marquee-infinite whitespace-nowrap flex items-center gap-14 text-[10px] font-mono tracking-widest uppercase text-zinc-400">
+          {Array(4).fill([
+            "UI Design Specialist", "UX Design Audits", "Figma Design Tokenization", "Rapid Interactive Prototyping", "Design System Infrastructure", "Usability User Testing", "B2B SaaS Architecture", "Framer Micro-interactions"
+          ]).flat().map((skill, index) => (
+            <div key={index} className="flex items-center gap-4">
+              <span className="font-bold text-zinc-200">{skill}</span>
+              <StarDecorationSVG className="w-2.5 h-2.5 text-[#E11D48]" />
+            </div>
+          ))}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const About = ({ lang }) => {
+  const t = TRANSLATIONS[lang];
+  const skills = SKILLS_DATA[lang];
+  const timeline = TIMELINE_DATA[lang];
+
+  return (
+    <section id="about" className="relative min-h-screen py-24 sm:py-32 px-6 sm:px-12 z-10 max-w-7xl mx-auto text-zinc-200 border-t border-white/[0.05]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20 items-start mb-24">
+        {/* Texts */}
+        <div className="lg:col-span-7 space-y-8">
+          <div className="inline-flex items-center gap-3">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#E11D48] font-bold">{t.aboutEyebrow}</span>
+            <span className="w-12 h-[1px] bg-[#E11D48]"></span>
+          </div>
+          
+          <h2 className="font-headings font-extrabold text-3xl sm:text-4xl md:text-5xl text-white leading-tight uppercase">
+            {t.aboutHeading}
+          </h2>
+
+          <div className="space-y-6 text-zinc-200 text-sm sm:text-base leading-relaxed font-light">
+            <p>{t.aboutBio1}</p>
+            <p>{t.aboutBio2}</p>
+          </div>
+
+          {/* Timeline Experience section */}
+          <div className="pt-10 space-y-8 border-t border-white/[0.08]">
+            <h3 className="font-headings font-extrabold text-xl sm:text-2xl text-white uppercase">{t.aboutExperienceTitle}</h3>
+            
+            <div className="relative border-l border-white/[0.08] pl-6 space-y-10">
+              {timeline.map((job, idx) => (
+                <div key={idx} className="relative group">
+                  <div className="absolute -left-[31px] top-1 w-4 h-4 rounded-full bg-[#0C0C0E] border-2 border-white/[0.15] group-hover:border-[#E11D48] transition-colors flex items-center justify-center">
+                    <div className="w-1 h-1 bg-[#E11D48] scale-0 group-hover:scale-100 transition-transform duration-300 rounded-full" />
+                  </div>
+                  
+                  <span className="text-[9px] font-mono text-[#E11D48] font-bold bg-[#E11D48]/10 border border-[#E11D48]/25 px-2 py-0.5 rounded-lg uppercase tracking-wider">
+                    {job.period}
+                  </span>
+                  
+                  <h4 className="font-headings font-extrabold text-lg text-white mt-3 uppercase">{job.role}</h4>
+                  {job.company && <p className="text-xs text-zinc-400 font-bold mb-2">{job.company}</p>}
+                  <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed max-w-xl font-light">{job.description}</p>
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Profile Card & Stats */}
+        <div className="lg:col-span-5 space-y-10 lg:sticky lg:top-28">
+          <div className="relative group overflow-hidden bg-[#141416] border border-white/[0.06] p-6 rounded-xl crimson-border-hover">
+            <StarDecorationSVG className="absolute right-6 top-6 w-5 h-5 text-[#E11D48]/40 group-hover:text-[#E11D48] transition-colors" />
+            
+            <div className="relative h-72 bg-gradient-to-br from-[#1b1b1f] to-[#0d0d0f] rounded-lg overflow-hidden flex items-center justify-center border border-white/[0.05]">
+              <div className="absolute inset-0 p-6 opacity-5">
+                <svg viewBox="0 0 100 100" className="w-full h-full text-rose-500 stroke-current fill-none">
+                  <circle cx="50" cy="50" r="40" strokeWidth="0.5" strokeDasharray="1 3" />
+                  <line x1="0" y1="0" x2="100" y2="100" strokeWidth="0.5" />
+                </svg>
+              </div>
+
+              {/* Graphic Profile Block with Z logo */}
+              <div className="relative text-center p-6 flex flex-col items-center">
+                <div className="w-20 h-20 rounded-xl border border-white/[0.08] p-2.5 mb-4 flex items-center justify-center relative group-hover:border-[#E11D48]/40 transition-colors bg-[#111113]">
+                  <div className="absolute inset-0 bg-[#E11D48]/10 blur-lg opacity-0 group-hover:opacity-100 transition-opacity" />
+                  <img 
+                    src="Logo.png" 
+                    alt="Hoang Tuanz Logo" 
+                    className="w-full h-full object-contain filter drop-shadow-[0_0_5px_rgba(225,29,72,0.4)]"
+                  />
+                </div>
+                
+                <h3 className="font-headings font-extrabold text-xl text-white uppercase">Hoang Tuanz</h3>
+                <p className="text-[10px] font-mono text-[#E11D48] font-bold tracking-widest mt-1 uppercase">Creative Product Architect</p>
+                
+                <div className="mt-4 flex flex-wrap gap-2 justify-center max-w-xs">
+                  <span className="text-[9px] font-mono bg-white/[0.03] border border-white/[0.06] px-2.5 py-1 rounded-lg text-zinc-300 font-semibold tracking-wider">User Psychology</span>
+                  <span className="text-[9px] font-mono bg-[#E11D48]/10 border border-[#E11D48]/25 px-2.5 py-1 rounded-lg text-[#E11D48] font-bold tracking-wider">Crimson Design</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="mt-6 flex justify-between items-center text-[10px] font-mono">
+              <span className="font-semibold text-zinc-500 uppercase tracking-widest">HCMC, VN</span>
+              <span className="text-[#E11D48] font-extrabold uppercase tracking-widest flex items-center gap-1.5">
+                <span className="w-1 h-1 bg-[#E11D48] rounded-full animate-ping" />
+                {t.heroOpenToWork}
+              </span>
+            </div>
+          </div>
+
+          {/* Numerical statistics */}
+          <div className="grid grid-cols-2 gap-4">
+            {[
+              { value: "3+", label: t.aboutStatsYears },
+              { value: "20+", label: t.aboutStatsProjects },
+              { value: "8+", label: t.aboutStatsClients },
+              { value: "2", label: t.aboutStatsAwards }
+            ].map((stat, i) => (
+              <div key={i} className="bg-[#141416] border border-white/[0.06] p-5 rounded-xl crimson-border-hover">
+                <h4 className="font-headings font-extrabold text-2xl sm:text-3xl text-[#E11D48] mb-1">{stat.value}</h4>
+                <p className="text-[9px] text-zinc-400 uppercase tracking-widest font-mono font-bold">{stat.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      </div>
+
+      {/* Skills list categories */}
+      <div className="py-16 border-t border-white/[0.08]">
+        <h3 className="font-headings font-extrabold text-2xl text-white mb-8 flex items-center gap-2 uppercase">
+          <StarDecorationSVG className="w-5 h-5 text-[#E11D48]" />
+          {t.aboutSkillsTitle}
+        </h3>
+        
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
+          <div className="space-y-4">
+            <h4 className="font-headings font-extrabold text-sm text-white flex items-center gap-2 uppercase">
+              <span className="w-2 h-2 bg-[#E11D48] rounded-full"></span> {t.skillsDesignTitle}
+            </h4>
+            <div className="flex flex-wrap gap-1.5">
+              {skills.design.map((s, i) => (
+                <span key={i} className="text-[11px] bg-[#141416] border border-white/[0.05] px-3 py-1.5 rounded-lg text-zinc-300 hover:border-[#E11D48] hover:text-white transition-all font-mono font-medium">{s}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="font-headings font-extrabold text-sm text-white flex items-center gap-2 uppercase">
+              <span className="w-2 h-2 bg-[#E11D48] rounded-full"></span> {t.skillsResearchTitle}
+            </h4>
+            <div className="flex flex-wrap gap-1.5">
+              {skills.research.map((s, i) => (
+                <span key={i} className="text-[11px] bg-[#141416] border border-white/[0.05] px-3 py-1.5 rounded-lg text-zinc-300 hover:border-[#E11D48] hover:text-white transition-all font-mono font-medium">{s}</span>
+              ))}
+            </div>
+          </div>
+
+          <div className="space-y-4">
+            <h4 className="font-headings font-extrabold text-sm text-white flex items-center gap-2 uppercase">
+              <span className="w-2 h-2 bg-[#E11D48] rounded-full"></span> {t.skillsDevTitle}
+            </h4>
+            <div className="flex flex-wrap gap-1.5">
+              {skills.dev.map((s, i) => (
+                <span key={i} className="text-[11px] bg-[#141416] border border-white/[0.05] px-3 py-1.5 rounded-lg text-zinc-300 hover:border-[#E11D48] hover:text-white transition-all font-mono font-medium">{s}</span>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* My Design Process Section */}
+        <div className="pt-16 border-t border-white/[0.08]">
+          <h3 className="font-headings font-extrabold text-2xl text-white mb-2 flex items-center gap-2 uppercase">
+            <StarDecorationSVG className="w-5 h-5 text-[#E11D48]" />
+            {t.aboutProcessTitle}
+          </h3>
+          <p className="text-zinc-400 text-xs sm:text-sm font-light mb-10 max-w-2xl">
+            {lang === 'vi' 
+              ? "Quy trình thiết kế sản phẩm khoa học bám sát tiêu chí đặt người dùng làm trung tâm nhằm chuyển hóa ý tưởng thành sản phẩm vận hành mượt mà."
+              : "A highly scientific, user-centered product workflow configured to turn early ideas into running digital architectures."
+            }
+          </p>
+          
+          <div className="relative">
+            {/* Elegant connection line behind stages on desktop */}
+            <div className="absolute top-[35px] left-[5%] right-[5%] h-[1px] bg-gradient-to-r from-[#E11D48]/0 via-white/[0.08] to-[#E11D48]/0 hidden lg:block pointer-events-none" />
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6 relative z-10">
+              {[
+                { title: t.process1Title, sub: t.process1Sub, desc: t.process1Desc },
+                { title: t.process2Title, sub: t.process2Sub, desc: t.process2Desc },
+                { title: t.process3Title, sub: t.process3Sub, desc: t.process3Desc },
+                { title: t.process4Title, sub: t.process4Sub, desc: t.process4Desc },
+                { title: t.process5Title, sub: t.process5Sub, desc: t.process5Desc }
+              ].map((step, idx) => (
+                <div 
+                  key={idx} 
+                  className="bg-[#141416] border border-white/[0.04] p-6 rounded-lg transition-all duration-300 hover:bg-[#1b1b1e] hover:border-[#E11D48]/40 hover:scale-[1.01] group flex flex-col justify-between"
+                >
+                  <div className="space-y-4">
+                    {/* Circle indicators */}
+                    <div className="w-10 h-10 rounded-lg bg-[#0C0C0E] border border-white/[0.08] flex items-center justify-center text-xs font-mono font-bold text-zinc-400 group-hover:text-white group-hover:border-[#E11D48] transition-all duration-300">
+                      0{idx + 1}
+                    </div>
+
+                    <div className="space-y-1">
+                      <h4 className="font-headings font-extrabold text-base text-white uppercase tracking-tight group-hover:text-[#E11D48] transition-colors">{step.title}</h4>
+                      <p className="text-[10px] font-mono uppercase text-[#E11D48]/80 tracking-widest">{step.sub}</p>
+                    </div>
+
+                    <p className="text-xs text-zinc-300 font-light leading-relaxed group-hover:text-zinc-200 transition-colors">
+                      {step.desc}
+                    </p>
+                  </div>
+
+                  <div className="w-full h-[2px] bg-transparent group-hover:bg-gradient-to-r group-hover:from-[#E11D48]/80 group-hover:to-transparent mt-6 transition-all duration-300" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Work = ({ lang, onSelectProject }) => {
+  const [selectedFilter, setSelectedFilter] = useState("All");
+  const t = TRANSLATIONS[lang];
+  const projects = PROJECTS_DATA[lang];
+
+  const filters = [
+    { key: "All", label: t.workFilterAll },
+    { key: "Product Design", label: t.workFilterProduct },
+    { key: "Mobile App", label: t.workFilterMobile },
+    { key: "Web UI", label: t.workFilterWeb },
+    { key: "Branding", label: t.workFilterBranding }
+  ];
+
+  const filteredProjects = selectedFilter === "All" 
+    ? projects 
+    : projects.filter(project => project.categoryKey === selectedFilter);
+
+  return (
+    <section id="work" className="relative min-h-screen py-24 sm:py-32 px-6 sm:px-12 z-10 max-w-7xl mx-auto text-zinc-200 border-t border-white/[0.05]">
+      <div className="space-y-6 mb-16">
+        <div className="inline-flex items-center gap-3">
+          <span className="text-[10px] font-mono uppercase tracking-widest text-[#E11D48] font-bold">{t.workEyebrow}</span>
+          <span className="w-12 h-[1px] bg-[#E11D48]"></span>
+        </div>
+        
+        <h2 className="font-headings font-extrabold text-3xl sm:text-4xl md:text-5xl text-white leading-tight uppercase">
+          {t.workHeading}
+        </h2>
+        <p className="text-zinc-300 text-sm sm:text-base max-w-2xl font-light">
+          {t.workSubtext}
+        </p>
+
+        {/* Dynamic project sorting filter tabs */}
+        <div className="flex flex-wrap gap-2.5 pt-4">
+          {filters.map((filter) => (
+            <button
+              key={filter.key}
+              onClick={() => setSelectedFilter(filter.key)}
+              className={`font-bold text-[10px] tracking-widest uppercase px-5 py-3 transition-all duration-300 rounded-lg outline-none ${
+                selectedFilter === filter.key 
+                  ? "bg-[#E11D48] text-white" 
+                  : "bg-[#141416] text-zinc-400 hover:text-white border border-white/[0.05] hover:border-white/10"
+              }`}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      {/* Case studies display grid */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+        {filteredProjects.map((project) => (
+          <div 
+            key={project.slug}
+            onClick={() => onSelectProject(project.slug)}
+            className="group cursor-pointer bg-[#141416] border border-white/[0.06] transition-all duration-500 hover:scale-[1.015] rounded-xl overflow-hidden crimson-border-hover"
+          >
+            {/* Banner media component */}
+            <div className="relative aspect-[16/10] overflow-hidden bg-zinc-950 border-b border-white/[0.05]">
+              <img 
+                src={project.coverImage} 
+                alt={project.title}
+                className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105 opacity-80 group-hover:opacity-100"
+              />
+              
+              <div className="absolute top-4 left-4 bg-[#E11D48] text-white font-extrabold text-[9px] uppercase tracking-widest px-3 py-1.5 rounded-lg">
+                {project.category}
+              </div>
+
+              {/* View Overlay on Hover */}
+              <div className="absolute inset-0 bg-[#0C0C0E]/70 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex items-center justify-center">
+                <span className="font-bold text-[10px] tracking-widest uppercase text-white bg-[#E11D48] px-5 py-3 rounded-lg flex items-center gap-2 transform translate-y-3 group-hover:translate-y-0 transition-transform duration-300 shadow-lg">
+                  {t.workHoverAction}
+                  <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                  </svg>
+                </span>
+              </div>
+            </div>
+
+            {/* Inner description logs */}
+            <div className="p-6 space-y-4">
+              <div className="flex justify-between items-center text-[10px] text-zinc-400 font-mono font-semibold uppercase tracking-wider">
+                <span>{project.role}</span>
+                <span>{project.year}</span>
+              </div>
+
+              <h3 className="font-headings font-extrabold text-lg text-white group-hover:text-[#E11D48] transition-colors leading-snug uppercase">
+                {project.title}
+              </h3>
+
+              <p className="text-xs text-zinc-300 line-clamp-2 leading-relaxed font-light">
+                {project.description}
+              </p>
+
+              <div className="flex flex-wrap gap-1.5 pt-1">
+                {project.tags.map((tag) => (
+                  <span key={tag} className="text-[9px] font-mono bg-white/[0.03] border border-white/[0.06] text-zinc-200 px-2.5 py-1 rounded-lg">
+                    {tag}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    </section>
+  );
+};
+
+const CaseStudy = ({ slug, lang, onNavigate }) => {
+  const t = TRANSLATIONS[lang];
+  const projects = PROJECTS_DATA[lang];
+  const project = projects.find(p => p.slug === slug);
+
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: 'smooth' });
+  }, [slug]);
+
+  if (!project) {
+    return (
+      <div className="min-h-screen flex flex-col justify-center items-center text-center p-6 text-white bg-[#0C0C0E]">
+        <h2 className="text-xl font-headings mb-5 uppercase">Case study not found.</h2>
+        <button onClick={() => onNavigate("home")} className="bg-[#E11D48] text-white px-6 py-3 rounded-lg font-bold uppercase tracking-widest">{t.caseBack}</button>
+      </div>
+    );
+  }
+
+  const currentIndex = projects.findIndex(p => p.slug === slug);
+  const nextProject = projects[(currentIndex + 1) % projects.length];
+
+  return (
+    <article className="relative min-h-screen py-24 sm:py-32 z-10 reveal-editorial text-zinc-200">
+      <div className="max-w-7xl mx-auto px-6 sm:px-12">
+        
+        {/* Navigation back */}
+        <button 
+          onClick={() => onNavigate("home", "work")}
+          className="group mb-10 inline-flex items-center gap-2.5 font-bold text-[10px] tracking-widest uppercase text-zinc-400 hover:text-[#E11D48] transition-colors focus:outline-none"
+        >
+          <svg className="w-3.5 h-3.5 transition-transform group-hover:-translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+          </svg>
+          {t.caseBack}
+        </button>
+
+        {/* Header */}
+        <header className="space-y-6 mb-12">
+          <span className="inline-block bg-[#E11D48] text-white font-extrabold text-[10px] uppercase tracking-widest px-3 py-1.5 rounded-lg">
+            {project.category}
+          </span>
+          <h1 className="font-headings font-extrabold text-3xl sm:text-5xl lg:text-6xl text-white tracking-tighter leading-tight uppercase">
+            {project.title}
+          </h1>
+          <p className="text-base sm:text-lg text-zinc-300 max-w-4xl font-light leading-relaxed">
+            {project.description}
+          </p>
+        </header>
+
+        {/* Metadata */}
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-6 py-8 border-y border-white/[0.08] mb-12 text-xs">
+          <div>
+            <p className="text-zinc-500 font-mono text-[9px] uppercase mb-1 tracking-wider font-bold">{t.caseRole}</p>
+            <p className="text-white font-extrabold text-sm uppercase">{project.role}</p>
+          </div>
+          <div>
+            <p className="text-zinc-500 font-mono text-[9px] uppercase mb-1 tracking-wider font-bold">{t.caseDuration}</p>
+            <p className="text-white font-extrabold text-sm uppercase">{project.duration}</p>
+          </div>
+          <div>
+            <p className="text-zinc-500 font-mono text-[9px] uppercase mb-1 tracking-wider font-bold">{t.caseYear}</p>
+            <p className="text-white font-extrabold text-sm uppercase">{project.year}</p>
+          </div>
+          <div>
+            <p className="text-zinc-500 font-mono text-[9px] uppercase mb-1 tracking-wider font-bold">{t.caseOutcome}</p>
+            <p className="text-[#E11D48] font-extrabold text-sm tracking-wide uppercase">{project.outcome}</p>
+          </div>
+        </div>
+
+        {/* Cover */}
+        <div className="aspect-[21/9] rounded-xl overflow-hidden mb-16 border border-white/[0.05] bg-zinc-950">
+          <img 
+            src={project.coverImage} 
+            alt={project.title}
+            className="w-full h-full object-cover"
+          />
+        </div>
+
+        {/* Double row contexts */}
+        <div className="grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-16 mb-20">
+          <div className="lg:col-span-7 space-y-4">
+            <h3 className="font-headings font-extrabold text-xl sm:text-2xl text-white uppercase">{t.caseChallenge}</h3>
+            <p className="text-zinc-300 text-sm sm:text-base leading-relaxed font-light">
+              {project.problem}
+            </p>
+          </div>
+          <div className="lg:col-span-5 space-y-4 bg-[#141416] p-6 rounded-xl border border-white/[0.05]">
+            <h3 className="font-headings font-extrabold text-lg text-white uppercase">{t.caseMission}</h3>
+            <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed font-light">
+              {project.myRole}
+            </p>
+          </div>
+        </div>
+
+        {/* Pull quote */}
+        <div className="relative text-center py-16 border-y border-white/[0.08] mb-20 max-w-4xl mx-auto">
+          <StarDecorationSVG className="w-10 h-10 text-[#E11D48]/30 mx-auto mb-4" />
+          <blockquote className="font-headings italic text-xl sm:text-2xl text-white leading-relaxed font-light px-4">
+            "{project.quote}"
+          </blockquote>
+          <p className="text-[10px] text-[#E11D48] uppercase font-mono mt-4 tracking-widest font-extrabold">— {t.caseQuoteTitle}</p>
+        </div>
+
+        {/* Chronological steps */}
+        <div className="space-y-10 mb-20">
+          <h3 className="font-headings font-extrabold text-2xl sm:text-3xl text-white uppercase">{t.caseProcessTitle}</h3>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {[
+              {
+                num: "01",
+                title: lang === 'vi' ? "Research & Discovery" : "Research & Discovery",
+                desc: lang === 'vi' 
+                  ? "Khảo sát thực tiễn người dùng, tiến hành phân tích thấu đáo hành vi thực tế, lập bản đồ hành trình người dùng và thực hiện đánh giá Heuristic hệ thống cũ để xác định rõ lỗ hổng trải nghiệm."
+                  : "Audited existing friction points, performed direct user interviews, established solid target personas, and mapped behavioral maps to reveal structural barriers."
+              },
+              {
+                num: "02",
+                title: lang === 'vi' ? "Information Architecture & Flows" : "Information Architecture & Flows",
+                desc: lang === 'vi' 
+                  ? "Tái cấu trúc lại mô hình sơ đồ phân cấp thông tin, tinh giản hóa các User Flows tương tác cốt lõi nhằm giảm thiểu tối đa số lượng bước thao tác thừa thãi cho người dùng."
+                  : "Reconceptualized semantic groupings, simplified critical user tasks, and pruned excessive navigational branches to prevent informational cognitive fatigue."
+              },
+              {
+                num: "03",
+                title: lang === 'vi' ? "Visual Design & Prototyping" : "Visual Design & Prototyping",
+                desc: lang === 'vi' 
+                  ? "Phác họa chi tiết các giải pháp giao diện độ phân giải cao trên Figma. Đồng thời tạo mẫu thử nghiệm tương tác chuyển động mượt mà và trực quan sinh động thông qua Protopie."
+                  : "Translated wireframes into pixel-perfect high-fidelity screens. Crafted realistic dynamic tactile transitions using interactive variables in Protopie."
+              },
+              {
+                num: "04",
+                title: lang === 'vi' ? "Usability Testing & Developer Handoff" : "Usability Testing & Developer Handoff",
+                desc: lang === 'vi' 
+                  ? "Triển khai kiểm nghiệm đo lường thực tế trên tệp khách hàng thử nghiệm, tinh lọc thiết kế dựa trên dữ liệu thu thập và thực hiện bàn giao thông số Design Token tỉ mỉ cho kỹ sư phát triển."
+                  : "Tested working high-fidelity layouts under real user environments, prioritized feedback into design refinements, and handed off organized semantic variables to developers."
+              }
+            ].map((step, idx) => (
+              <div key={idx} className="bg-[#141416] border border-white/[0.05] p-6 rounded-xl space-y-4 crimson-border-hover">
+                <span className="font-headings text-5xl font-extrabold text-[#E11D48]/15 block leading-none">{step.num}</span>
+                <h4 className="font-headings font-extrabold text-lg text-white uppercase">{step.title}</h4>
+                <p className="text-zinc-300 text-xs sm:text-sm leading-relaxed font-light">{step.desc}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Quantitative outcomes */}
+        <div className="space-y-8 mb-20">
+          <h3 className="font-headings font-extrabold text-2xl text-white text-center uppercase">{t.caseOutcomesTitle}</h3>
+          
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6">
+            {project.outcomes.map((item, idx) => (
+              <div key={idx} className="bg-[#141416] border border-white/[0.05] p-6 rounded-xl text-center space-y-1 relative group overflow-hidden crimson-border-hover">
+                <p className="text-4xl sm:text-5xl font-headings font-extrabold text-[#E11D48] tracking-tight">{item.metric}</p>
+                <p className="text-[10px] text-zinc-400 font-bold uppercase tracking-wider font-mono">{item.label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Gallery */}
+        <div className="space-y-8 mb-20">
+          <h3 className="font-headings font-extrabold text-2xl text-white uppercase">{t.caseGalleryTitle}</h3>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {project.gallery.map((img, i) => (
+              <div key={i} className="overflow-hidden aspect-[4/3] rounded-xl border border-white/[0.05] bg-zinc-950 group crimson-border-hover">
+                <img 
+                  src={img} 
+                  alt="Case Study Showcase" 
+                  className="w-full h-full object-cover opacity-85 group-hover:opacity-100 transition-opacity duration-300"
+                />
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Navigation to next */}
+        <div className="border-t border-white/[0.08] pt-16 flex flex-col items-center">
+          <p className="text-[10px] font-mono uppercase text-zinc-500 tracking-widest mb-3 font-bold">{t.caseNext}</p>
+          <button 
+            onClick={() => onNavigate(`work/${nextProject.slug}`)}
+            className="group text-center focus:outline-none"
+          >
+            <h4 className="font-headings font-extrabold text-2xl sm:text-4xl text-white group-hover:text-[#E11D48] transition-colors mb-4 tracking-tight uppercase">
+              {nextProject.title}
+            </h4>
+            <span className="inline-flex items-center gap-2 text-[10px] tracking-widest uppercase text-zinc-400 group-hover:text-white transition-colors font-bold">
+              {t.caseReadNext}
+              <svg className="w-4 h-4 transition-transform group-hover:translate-x-1" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+              </svg>
+            </span>
+          </button>
+        </div>
+      </div>
+    </article>
+  );
+};
+
+const Contact = ({ lang }) => {
+  const t = TRANSLATIONS[lang];
+  const [formState, setFormState] = useState({
+    name: "",
+    email: "",
+    message: ""
+  });
+
+  const [errors, setErrors] = useState({});
+  const [submitting, setSubmitting] = useState(false);
+  const [success, setSuccess] = useState(false);
+
+  const validateField = (name, value) => {
+    let err = "";
+    if (name === "name") {
+      if (!value.trim()) err = t.errName;
+    } else if (name === "email") {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!value) err = t.errEmail;
+      else if (!emailRegex.test(value)) err = t.errEmail;
+    } else if (name === "message") {
+      if (!value) err = t.errMessage;
+      else if (value.length < 20) err = t.errMessage;
+    }
+    return err;
+  };
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setFormState(prev => ({ ...prev, [name]: value }));
+    const fieldError = validateField(name, value);
+    setErrors(prev => ({ ...prev, [name]: fieldError }));
+  };
+
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    const nameErr = validateField("name", formState.name);
+    const emailErr = validateField("email", formState.email);
+    const messageErr = validateField("message", formState.message);
+
+    if (nameErr || emailErr || messageErr) {
+      setErrors({
+        name: nameErr,
+        email: emailErr,
+        message: messageErr
+      });
+      return;
+    }
+
+    setSubmitting(true);
+
+    setTimeout(() => {
+      setSubmitting(false);
+      setSuccess(true);
+      setFormState({
+        name: "",
+        email: "",
+        message: ""
+      });
+    }, 1500);
+  };
+
+  return (
+    <section id="contact" className="relative min-h-screen py-24 sm:py-32 px-6 sm:px-12 z-10 max-w-7xl mx-auto text-zinc-200 border-t border-white/[0.05]">
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-16 lg:gap-20 items-start">
+        {/* Contacts info */}
+        <div className="lg:col-span-5 space-y-6">
+          <div className="inline-flex items-center gap-3">
+            <span className="text-[10px] font-mono uppercase tracking-widest text-[#E11D48] font-bold">CONTACT</span>
+            <span className="w-12 h-[1px] bg-[#E11D48]"></span>
+          </div>
+
+          <h2 className="font-headings font-extrabold text-3xl sm:text-4xl md:text-5xl text-white leading-tight uppercase">
+            {t.contactHeading}
+          </h2>
+          
+          <p className="text-zinc-300 text-sm sm:text-base leading-relaxed font-light">
+            {t.contactSubtext}
+          </p>
+
+          <div className="space-y-6 pt-4 text-xs font-mono">
+            <div>
+              <p className="text-zinc-500 uppercase text-[9px] mb-1 tracking-wider font-bold">{t.contactEmailLabel}</p>
+              <a href="mailto:Tunz.ne.295@gmail.com" className="text-[#E11D48] text-base sm:text-lg font-headings font-extrabold hover:underline">
+                Tunz.ne.295@gmail.com
+              </a>
+            </div>
+            
+            <div>
+              <p className="text-zinc-500 uppercase text-[9px] mb-1 tracking-wider font-bold">{t.contactLocationLabel}</p>
+              <p className="text-white text-sm font-bold uppercase">Ho Chi Minh City, Vietnam (GMT+7)</p>
+            </div>
+
+            <div>
+              <p className="text-zinc-500 uppercase text-[9px] mb-1 tracking-wider font-bold">{t.contactResponseLabel}</p>
+              <p className="text-white text-sm font-bold uppercase">{t.contactResponseValue}</p>
+            </div>
+          </div>
+
+          <div className="pt-6 border-t border-white/[0.08] space-y-3">
+            <p className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-bold">{t.contactSocialsLabel}</p>
+            <div className="grid grid-cols-2 gap-3">
+              {[
+                { name: "Behance", link: "https://www.behance.net/tunzhong" },
+                { name: "Dribbble", link: "https://dribbble.com/tunz-ne-295" },
+                { name: "LinkedIn", link: "https://www.linkedin.com/in/tu%E1%BA%A5nz-undefined-b81a873ba/" },
+                { name: "GitHub", link: "https://github.com/TunZ-Deptrai" }
+              ].map((s) => (
+                <a 
+                  key={s.name} 
+                  href={s.link} 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="flex items-center gap-1.5 text-xs text-zinc-300 hover:text-[#E11D48] transition-colors font-semibold"
+                >
+                  <StarDecorationSVG className="w-2.5 h-2.5 text-[#E11D48]/75" />
+                  <span>{s.name}</span>
+                </a>
+              ))}
+            </div>
+          </div>
+        </div>
+
+        {/* Form panel */}
+        <div className="lg:col-span-7 bg-[#141416] p-6 sm:p-10 border border-white/[0.05] rounded-xl relative crimson-border-hover">
+          {success ? (
+            <div className="h-full flex flex-col justify-center items-center text-center py-16 space-y-5">
+              <div className="w-16 h-16 border border-[#E11D48]/30 rounded-lg flex items-center justify-center animate-bounce">
+                <StarDecorationSVG className="w-8 h-8 text-[#E11D48]" />
+              </div>
+              <h3 className="font-headings font-extrabold text-2xl text-white leading-tight uppercase">{t.contactSuccessTitle}</h3>
+              <p className="text-zinc-300 max-w-sm text-xs sm:text-sm font-light leading-relaxed">
+                {t.contactSuccessDesc}
+              </p>
+              <button 
+                onClick={() => setSuccess(false)}
+                className="font-bold text-[10px] tracking-widest uppercase text-white bg-[#E11D48] px-6 py-3.5 rounded-lg hover:bg-white hover:text-black transition-colors"
+              >
+                {t.contactSuccessBtn}
+              </button>
+            </div>
+          ) : (
+            <form onSubmit={handleSubmit} className="space-y-6">
+              <div className="border-b border-white/[0.05] pb-5 mb-2">
+                <h3 className="font-headings font-extrabold text-lg text-white uppercase tracking-tight">
+                  {t.contactFormHeaderTitle}
+                </h3>
+                <p className="text-zinc-400 text-xs mt-1 font-light">
+                  {t.contactFormHeaderDesc}
+                </p>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+                <div className="space-y-1.5">
+                  <label htmlFor="name" className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-bold">{t.contactFormName}</label>
+                  <input 
+                    type="text" 
+                    id="name"
+                    name="name"
+                    value={formState.name}
+                    onChange={handleInputChange}
+                    placeholder="Your name"
+                    className={`w-full bg-[#0C0C0E] border rounded-lg px-4 py-3.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#E11D48] placeholder-zinc-600 ${
+                      errors.name ? "border-red-500" : "border-white/[0.1]"
+                    }`}
+                  />
+                  {errors.name && <p className="text-[10px] text-red-500 font-mono mt-1">{errors.name}</p>}
+                </div>
+
+                <div className="space-y-1.5">
+                  <label htmlFor="email" className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-bold">{t.contactFormEmail}</label>
+                  <input 
+                    type="text" 
+                    id="email"
+                    name="email"
+                    value={formState.email}
+                    onChange={handleInputChange}
+                    placeholder="your@email.com"
+                    className={`w-full bg-[#0C0C0E] border rounded-lg px-4 py-3.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#E11D48] placeholder-zinc-600 ${
+                      errors.email ? "border-red-500" : "border-white/[0.1]"
+                    }`}
+                  />
+                  {errors.email && <p className="text-[10px] text-red-500 font-mono mt-1">{errors.email}</p>}
+                </div>
+              </div>
+
+
+
+              <div className="space-y-1.5">
+                <label htmlFor="message" className="text-[10px] font-mono uppercase tracking-widest text-zinc-400 font-bold">{t.contactFormMessage}</label>
+                <textarea 
+                  id="message"
+                  name="message"
+                  rows={6}
+                  value={formState.message}
+                  onChange={handleInputChange}
+                  placeholder="Tell me about your product requirements..."
+                  className={`w-full bg-[#0C0C0E] border rounded-lg px-4 py-3.5 text-xs text-white focus:outline-none focus:ring-1 focus:ring-[#E11D48] placeholder-zinc-600 ${
+                    errors.message ? "border-red-500" : "border-white/[0.1]"
+                  }`}
+                />
+                {errors.message && <p className="text-[10px] text-red-500 font-mono mt-1">{errors.message}</p>}
+              </div>
+
+              <button
+                type="submit"
+                disabled={submitting}
+                className="w-full font-bold text-[10px] tracking-widest uppercase bg-[#E11D48] text-white py-4 rounded-lg hover:bg-white hover:text-black transition-all flex items-center justify-center gap-2 shadow-lg disabled:opacity-50"
+              >
+                {submitting ? (
+                  <>
+                    <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                    </svg>
+                    {t.contactFormSending}
+                  </>
+                ) : (
+                  <>
+                    {t.contactFormSubmit}
+                    <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M14 5l7 7m0 0l-7 7m7-7H3" />
+                    </svg>
+                  </>
+                )}
+              </button>
+            </form>
+          )}
+        </div>
+      </div>
+    </section>
+  );
+};
+
+const Footer = ({ lang, onNavigate, onShowToast }) => {
+  const t = TRANSLATIONS[lang];
+
+  const handleFooterLinkClick = (sectionId) => {
+    onNavigate("home", sectionId);
+  };
+
+  return (
+    <footer className="relative bg-[#0C0C0E] border-t border-white/[0.05] py-10 px-6 sm:px-12 z-10 text-zinc-400">
+      <div className="max-w-7xl mx-auto flex flex-col md:flex-row items-center justify-between gap-6 text-[11px]">
+        <div className="text-center md:text-left space-y-0.5">
+          <p className="font-bold text-white tracking-wider">© 2026 {t.footerReserved}</p>
+          <p className="text-zinc-500">{t.footerSubtext}</p>
+        </div>
+
+        <div className="flex flex-wrap items-center justify-center gap-6 font-bold uppercase tracking-widest text-white">
+          <button onClick={() => handleFooterLinkClick("work")} className="hover:text-[#E11D48] transition-colors">{t.navWork}</button>
+          <button onClick={() => handleFooterLinkClick("about")} className="hover:text-[#E11D48] transition-colors">{t.navAbout}</button>
+          <button onClick={() => handleFooterLinkClick("contact")} className="hover:text-[#E11D48] transition-colors">{t.navContact}</button>
+          <button 
+            onClick={() => {
+              const infoMsg = lang === 'vi' 
+                ? "Bản CV PDF đang được tối ưu hóa thiết kế mới. Vui lòng nhắn tin trực tiếp ở mục Liên hệ bên dưới để nhận CV cập nhật mới nhất!"
+                : "The PDF CV is currently undergoing visual updates. Please send an inquiry in the Contact form below to get the latest version!";
+              onShowToast(infoMsg);
+            }} 
+            className="font-bold text-[10px] tracking-widest uppercase bg-[#E11D48] text-white px-4 py-2.5 rounded-lg hover:bg-white hover:text-black transition-all duration-300 hover:scale-[1.05] active:scale-[0.98] shadow-md shadow-[#E11D48]/25 flex items-center gap-1.5 border-none"
+          >
+            <svg className="w-3.5 h-3.5 animate-pulse" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2.5} d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4" />
+            </svg>
+            {t.heroDownloadCV}
+          </button>
+        </div>
+
+        <div className="flex items-center gap-2">
+          <span className="relative flex h-2 w-2">
+            <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[#E11D48] opacity-75"></span>
+            <span className="relative inline-flex rounded-full h-2 w-2 bg-[#E11D48]"></span>
+          </span>
+          <span className="font-mono text-[10px] uppercase tracking-widest text-[#E11D48] font-bold">Open to work</span>
+        </div>
+      </div>
+    </footer>
+  );
+};
+
+export default function App() {
+  const [lang, setLang] = useState("vi");
+  const [currentRoute, setCurrentRoute] = useState("home");
+  const [activeProjectSlug, setActiveProjectSlug] = useState("");
+  const [toastMessage, setToastMessage] = useState(null);
+
+  const handleNavigation = (route, sectionId) => {
+    if (route.startsWith("work/")) {
+      const slug = route.split("/")[1];
+      setActiveProjectSlug(slug);
+      setCurrentRoute("project-detail");
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    } else {
+      setCurrentRoute("home");
+      if (sectionId) {
+        setTimeout(() => {
+          const element = document.getElementById(sectionId);
+          if (element) {
+            element.scrollIntoView({ behavior: 'smooth' });
+          }
+        }, 150);
+      } else {
+        window.scrollTo({ top: 0, behavior: 'smooth' });
+      }
+    }
+  };
+
+  return (
+    <div className="relative min-h-screen bg-[#0C0C0E] text-[#F2F2F2] selection:bg-[#E11D48] selection:text-white">
+      <StyleLoader />
+      <EditorialGridBackground />
+      
+      <Navbar lang={lang} setLang={setLang} activeRoute={currentRoute} onNavigate={handleNavigation} />
+
+      <main className="relative z-10">
+        {currentRoute === "home" && (
+          <div className="reveal-editorial">
+            <Hero lang={lang} onShowToast={(msg) => setToastMessage(msg)} />
+            <Work lang={lang} onSelectProject={(slug) => handleNavigation(`work/${slug}`)} />
+            <About lang={lang} />
+            <Contact lang={lang} />
+          </div>
+        )}
+        
+        {currentRoute === "project-detail" && (
+          <CaseStudy slug={activeProjectSlug} lang={lang} onNavigate={handleNavigation} />
+        )}
+      </main>
+
+      <Footer lang={lang} onNavigate={handleNavigation} onShowToast={(msg) => setToastMessage(msg)} />
+
+      {toastMessage && (
+        <NotificationToast 
+          message={toastMessage} 
+          onClose={() => setToastMessage(null)} 
+        />
+      )}
+    </div>
+  );
+}
