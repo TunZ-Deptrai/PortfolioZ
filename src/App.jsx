@@ -1017,17 +1017,13 @@ const Hero = ({ lang, onShowToast }) => {
             {t.heroViewWork}
           </button>
           
-          <button 
-            onClick={() => {
-              const infoMsg = lang === 'vi' 
-                ? "Bản CV PDF đang được tối ưu hóa thiết kế mới. Vui lòng nhắn tin trực tiếp ở mục Liên hệ bên dưới để nhận CV cập nhật mới nhất!"
-                : "The PDF CV is currently undergoing visual updates. Please send an inquiry in the Contact form below to get the latest version!";
-              onShowToast(infoMsg);
-            }}
-            className="w-full sm:w-auto font-bold text-xs tracking-widest uppercase bg-transparent border border-white/10 text-zinc-300 px-8 py-4 rounded-lg hover:bg-white/5 hover:text-white hover:border-white/20 transition-all duration-300"
+          <a 
+            href="/CV_VoHoangTuan.pdf"
+            download="CV_VoHoangTuan.pdf"
+            className="w-full sm:w-auto text-center font-bold text-xs tracking-widest uppercase bg-transparent border border-white/10 text-zinc-300 px-8 py-4 rounded-lg hover:bg-white/5 hover:text-white hover:border-white/20 transition-all duration-300"
           >
             {t.heroDownloadCV}
-          </button>
+          </a>
         </div>
       </div>
 
