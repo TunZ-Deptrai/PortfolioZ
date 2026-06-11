@@ -81,6 +81,14 @@ const StyleLoader = () => (
     button, [role="button"], a {
       cursor: pointer !important;
     }
+
+    @keyframes spinSlow {
+      from { transform: rotate(0deg); }
+      to { transform: rotate(360deg); }
+    }
+    .animate-spin-slow {
+      animation: spinSlow 12s linear infinite;
+    }
   `}} />
 );
 
@@ -1882,10 +1890,33 @@ const Footer = ({ lang, onNavigate, onShowToast }) => {
         </div>
 
         {/* Bottom Section: Copyright & Actions */}
-        <div className="flex flex-col sm:flex-row items-center justify-between gap-6 text-[11px]">
-          <div className="text-center sm:text-left space-y-1">
+        <div className="flex flex-col md:flex-row items-center justify-between gap-6 text-[11px] pt-8 border-t border-white/[0.05]">
+          <div className="text-center md:text-left space-y-1">
             <p className="font-bold text-white tracking-wider">© 2026 {t.footerReserved}</p>
             <p className="text-zinc-500 font-mono text-[9px]">{t.footerSubtext}</p>
+          </div>
+
+          {/* Middle Spinning Star Badge */}
+          <div className="flex items-center justify-center py-2 md:py-0">
+            <div className="relative group cursor-pointer">
+              {/* Outer glow aura */}
+              <div className="absolute inset-0 bg-[#E11D48] rounded-full blur-md opacity-20 group-hover:opacity-60 transition-opacity duration-500"></div>
+              {/* Rotating Star wrapper */}
+              <div className="relative bg-[#141416] border border-white/[0.08] p-3 rounded-full flex items-center justify-center transition-transform duration-500 group-hover:scale-110 group-hover:border-[#E11D48]/30">
+                <svg 
+                  className="w-5 h-5 text-[#E11D48] animate-spin-slow group-hover:[animation-duration:3s]" 
+                  viewBox="0 0 24 24" 
+                  fill="none" 
+                  xmlns="http://www.w3.org/2000/svg"
+                  style={{ transition: 'transform 0.5s ease' }}
+                >
+                  <path 
+                    d="M12 0C12 6.627 6.627 12 0 12C6.627 12 12 17.373 12 24C12 17.373 17.373 12 24 12C17.373 12 12 6.627 12 0Z" 
+                    fill="currentColor"
+                  />
+                </svg>
+              </div>
+            </div>
           </div>
 
           <div className="flex flex-wrap items-center justify-center gap-6 font-bold uppercase tracking-widest text-white">
