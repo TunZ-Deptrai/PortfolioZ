@@ -22,6 +22,49 @@ const StyleLoader = () => (
       letter-spacing: -0.04em;
     }
 
+    
+
+    @keyframes tuanzTextureFlow {
+      0% {
+        background-position: 18% 52%;
+      }
+      100% {
+        background-position: 118% 52%;
+      }
+    }
+
+    .hero-title-accent-premium {
+      position: relative;
+      display: inline-block;
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+      background-image: url('/tuanz-texture-psychedelic.jpg');
+      background-size: 215% auto;
+      background-position: 18% 52%;
+      background-repeat: repeat-x;
+      background-clip: text;
+      -webkit-background-clip: text;
+      filter: saturate(1.03) brightness(1.01) contrast(0.88);
+      animation: tuanzTextureFlow 40s linear infinite;
+      will-change: background-position;
+      transform: translateZ(0);
+      -webkit-font-smoothing: antialiased;
+      text-rendering: geometricPrecision;
+    }
+
+    .hero-title-accent-premium::before {
+      display: none;
+    }
+
+    .hero-title-accent-premium .letter {
+      color: transparent;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .hero-title-accent-premium .letter::after {
+      display: none;
+    }
+
     ::selection {
       background-color: #E11D48;
       color: #FFFFFF;
@@ -99,8 +142,7 @@ const TRANSLATIONS = {
     navAbout: "Giới Thiệu",
     navContact: "Liên Hệ",
     navHire: "HỢP TÁC NGAY",
-    heroAvailable: "Sẵn sàng nhận dự án · TP. Hồ Chí Minh 🇻🇳",
-    heroSubheading: "Thiết kế sản phẩm số đơn giản, trực quan và lấy người dùng làm trung tâm",
+    heroAvailable: "Sẵn sàng nhận dự án · TP. Hồ Chí Minh 🇻🇳",    heroSubheading: "Thiết kế sản phẩm số đơn giản, trực quan và lấy người dùng làm trung tâm",
     heroViewWork: "Xem sản phẩm",
     heroDownloadCV: "Tải CV (.PDF)",
     heroOpenToWork: "Nhận dự án tự do",
@@ -191,8 +233,7 @@ const TRANSLATIONS = {
     navAbout: "About",
     navContact: "Contact",
     navHire: "HIRE ME NOW",
-    heroAvailable: "Available for freelance · Ho Chi Minh City 🇻🇳",
-    heroSubheading: "UI/UX Designer transforming ideas into intuitive and engaging digital experiences.",
+    heroAvailable: "Available for freelance · Ho Chi Minh City 🇻🇳",    heroSubheading: "UI/UX Designer transforming ideas into intuitive and engaging digital experiences.",
     heroViewWork: "View my work",
     heroDownloadCV: "Download CV (.PDF)",
     heroOpenToWork: "Open to work",
@@ -1021,12 +1062,17 @@ const Hero = ({ lang, onShowToast }) => {
         </div>
 
         {/* Brand name with regular text Z */}
-        <h1 className="font-headings font-black text-5xl sm:text-7xl md:text-[6.5rem] lg:text-[7.5rem] tracking-tight leading-none uppercase relative select-none mb-8">
+        <h1 className="font-headings font-black text-5xl sm:text-7xl md:text-[6.5rem] lg:text-[7.5rem] tracking-tight leading-none uppercase relative select-none mb-4">
           <span className="text-white">HOANG </span>
-          <span className="text-[#E11D48]">TUANZ</span>
+          <span className="hero-title-accent-premium">{["T", "U", "A", "N", "Z"].map((letter) => <span key={letter} className="letter" data-letter={letter}>{letter}</span>)}</span>
         </h1>
 
-        <p className="text-base sm:text-lg md:text-xl text-zinc-200 max-w-2xl mb-12 leading-relaxed font-light">
+        <p className="mb-3 inline-flex items-center justify-center gap-2 font-headings text-2xl font-extrabold uppercase leading-none drop-shadow-[0_0_18px_rgba(255,255,255,0.16)]">
+          <span style={{ color: "rgba(225, 29, 72, 0.85)" }}>UI/UX</span>
+          <span className="text-white">Designer</span>
+        </p>
+
+        <p className="text-base sm:text-lg md:text-xl text-zinc-200 max-w-4xl mb-12 leading-relaxed font-light">
           {t.heroSubheading}
         </p>
 
